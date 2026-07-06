@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  password    String
+  role        Role         @default(INVESTOR)
+  balance     Float        @default(0.0) // Saldo de la cuenta en la plataforma
+  investments Investment[]
+  projects    Project[]    // Si un PYME crea proyectos
+}
+
+model Project {
+  id              Int          @id @default(autoincrement())
+  title           String
+  description     String
+  fundingGoal     Float        // Meta de fondeo
+  currentFunding  Float        @default(0.0)
+  deadline        DateTime     // Plazo
+  returnRate      Float        // Tasa de retorno ofrecida
+  status          Status       @default(DRAFT)
+  ownerId         Int
+  owner           User         @relation(fields: [ownerId], references: [id])
+  investments     Investment[]
+}
+
+model Investment {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+}
+
+enum Role {
+  INVESTOR
+  PYME
+  ADMIN
+}
+
+enum Status {
+  DRAFT       // borrador
+  ACTIVE      // activo
+  FUNDED      // fondeado
+  IN_PROGRESS // en ejecución
+  COMPLETED   // completado
+  DEFAULT     // en mora
+  CANCELED    // cancelado
+}
