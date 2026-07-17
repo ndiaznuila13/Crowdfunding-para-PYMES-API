@@ -8,6 +8,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { WalletModule } from './wallet/wallet.module';
     AuthModule,
     UsersModule,
     WalletModule,
+    FinanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
