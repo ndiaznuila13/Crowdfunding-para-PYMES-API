@@ -21,7 +21,10 @@ export class InvestmentsController {
 
   @Roles(Role.INVESTOR)
   @Post()
-  create(@Req() req: AuthenticatedRequest, @Body() createInvestmentDto: CreateInvestmentDto) {
+  create(
+    @Req() req: AuthenticatedRequest,
+    @Body() createInvestmentDto: CreateInvestmentDto,
+  ) {
     return this.investmentsService.create(req.user.id, createInvestmentDto);
   }
 }
