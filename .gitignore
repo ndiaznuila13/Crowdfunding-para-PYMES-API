@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# portable Node.js runtime (local dev only, see README)
+/.node
+
 # Logs
 logs
 *.log
