@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProjectsModule } from './projects/projects.module';
 import { UsersModule } from './users/users.module';
 import { WalletModule } from './wallet/wallet.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { WalletModule } from './wallet/wallet.module';
     WalletModule,
     FinanceModule,
     InvestmentsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

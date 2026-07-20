@@ -25,23 +25,47 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Project setup
+## Configuración local
 
 ```bash
-$ npm install
+npm install
+cp .env.example .env
+npm run db:setup
 ```
+
+El proyecto usa PostgreSQL en `localhost:5432` y la base
+`crowdfunding_pymes`. Ajusta `DATABASE_URL` en `.env` si tu usuario local de
+PostgreSQL es diferente. El seed crea los usuarios
+`investor@example.com`, `pyme@example.com`, `pyme2@example.com` y
+`admin@example.com`; la contraseña de demostración para todos es
+`Password123`.
+
+Para abrir la documentación y probar la API con Nest/Swagger:
+
+```bash
+npm run start:dev
+```
+
+- API: `http://localhost:3000`
+- Swagger: `http://localhost:3000/api/docs`
+- Dashboard del inversionista: `GET /dashboard/investor` con JWT de tipo
+  Bearer.
+
+La colección `postman/Crowdfunding-PYMES.postman_collection.json` ejecuta el
+flujo login → creación/activación del proyecto → depósito → inversión →
+dashboard. Ejecútala en orden después de levantar la aplicación.
 
 ## Compile and run the project
 
 ```bash
 # development
-$ npm run start
+npm run start
 
 # watch mode
-$ npm run start:dev
+npm run start:dev
 
 # production mode
-$ npm run start:prod
+npm run start:prod
 ```
 
 ## Run tests
@@ -51,7 +75,7 @@ $ npm run start:prod
 $ npm run test
 
 # e2e tests
-$ npm run test:e2e
+npm run test:e2e
 
 # test coverage
 $ npm run test:cov

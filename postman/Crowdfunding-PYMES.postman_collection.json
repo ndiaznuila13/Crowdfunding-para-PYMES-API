@@ -1,0 +1,304 @@
+{
+  "info": {
+    "_postman_id": "71be56ee-d5e8-4c83-a527-dashboard-flow",
+    "name": "Crowdfunding PYMES API - Flujo completo",
+    "description": "Flujo local: autenticación, creación y activación de proyecto, depósito, inversión y dashboard del inversionista. Ejecutar en orden con la API en http://localhost:3000.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "password", "value": "Password123", "type": "secret" },
+    { "key": "investorEmail", "value": "investor@example.com" },
+    { "key": "pymeEmail", "value": "pyme@example.com" },
+    { "key": "investorToken", "value": "" },
+    { "key": "pymeToken", "value": "" },
+    { "key": "investorId", "value": "" },
+    { "key": "pymeId", "value": "" },
+    { "key": "projectId", "value": "" },
+    { "key": "futureDeadline", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 - Estado de la API",
+      "item": [
+        {
+          "name": "Health - raíz",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('API disponible', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Autenticación",
+      "item": [
+        {
+          "name": "Login PYME",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{pymeEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login PYME correcto', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('pymeToken', json.access_token);",
+                  "pm.collectionVariables.set('pymeId', String(json.user.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login INVESTOR",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{investorEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login INVESTOR correcto', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('investorToken', json.access_token);",
+                  "pm.collectionVariables.set('investorId', String(json.user.id));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Proyectos",
+      "item": [
+        {
+          "name": "Crear proyecto como PYME",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const deadline = new Date();",
+                  "deadline.setUTCFullYear(deadline.getUTCFullYear() + 1);",
+                  "pm.collectionVariables.set('futureDeadline', deadline.toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Proyecto creado', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.status).to.eql('DRAFT');",
+                  "pm.collectionVariables.set('projectId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{pymeId}}" },
+              { "key": "x-user-role", "value": "PYME" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Expansión Postman {{$timestamp}}\",\n  \"description\": \"Compra de equipo productivo para ampliar la capacidad de la PYME.\",\n  \"fundingGoal\": 10000,\n  \"deadline\": \"{{futureDeadline}}\",\n  \"returnRate\": 0.12\n}"
+            },
+            "url": "{{baseUrl}}/projects"
+          }
+        },
+        {
+          "name": "Activar proyecto",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-id", "value": "{{pymeId}}" },
+              { "key": "x-user-role", "value": "PYME" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\"\n}" },
+            "url": "{{baseUrl}}/projects/{{projectId}}/status"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Proyecto activo', () => { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql('ACTIVE'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar proyectos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/projects"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna una lista', () => { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Flujo del inversionista",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{investorToken}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Depositar fondos",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 1000\n}" },
+            "url": "{{baseUrl}}/wallet/deposit"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Depósito exitoso', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invertir en proyecto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": {{projectId}},\n  \"amount\": 500\n}"
+            },
+            "url": "{{baseUrl}}/investments"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Inversión creada', () => { pm.response.to.have.status(201); pm.expect(pm.response.json().amount).to.eql(500); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar dashboard investor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/dashboard/investor"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Dashboard consolidado', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Contiene resumen, inversiones e historial', () => {",
+                  "  pm.expect(json.summary).to.have.keys('activeInvestmentsTotal', 'returnsReceivedTotal', 'estimatedIrrPercentage', 'activeProjectsCount');",
+                  "  pm.expect(json.activeInvestments).to.be.an('array');",
+                  "  pm.expect(json.returnHistory).to.be.an('array');",
+                  "  pm.expect(json.summary.estimatedIrrPercentage).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/wallet/balance"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Balance disponible', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Seguridad",
+      "item": [
+        {
+          "name": "Dashboard sin token devuelve 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": "{{baseUrl}}/dashboard/investor"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Acceso rechazado', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
