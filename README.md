@@ -1,122 +1,110 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Crowdfunding para PYMES - API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Esta es la API para la plataforma de Crowdfunding para PYMES construida con **NestJS**, **Prisma ORM** y **PostgreSQL**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+A continuación se detalla paso a paso cómo instalar y correr el proyecto en un entorno de desarrollo local (Windows, macOS o Linux).
 
-## Description
+## 📋 Requisitos Previos
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Asegúrate de tener instalados en tu sistema:
+- **Node.js** (versión 18 o superior recomendada)
+- **npm** (usualmente viene instalado junto con Node.js)
+- **PostgreSQL** (instalado y corriendo en tu máquina)
 
-## Configuración local
+---
 
+## 🚀 Guía Paso a Paso de Instalación
+
+### Paso 1: Clonar / Abrir el proyecto
+Abre una terminal y dirígete a la carpeta raíz del proyecto.
+```bash
+cd crowdfunding-para-pymes-api
+```
+
+### Paso 2: Instalar Dependencias
+Instala todos los paquetes necesarios de Node.js mediante el comando:
 ```bash
 npm install
-cp .env.example .env
-npm run db:setup
 ```
 
-El proyecto usa PostgreSQL en `localhost:5432` y la base
-`crowdfunding_pymes`. Ajusta `DATABASE_URL` en `.env` si tu usuario local de
-PostgreSQL es diferente. El seed crea los usuarios
-`investor@example.com`, `pyme@example.com`, `pyme2@example.com` y
-`admin@example.com`; la contraseña de demostración para todos es
-`Password123`.
+### Paso 3: Crear la Base de Datos en PostgreSQL
+Debes crear una base de datos vacía en PostgreSQL antes de poder ejecutar las migraciones de Prisma.
+Puedes usar herramientas como **pgAdmin**, **DBeaver**, o la terminal (usando `psql` o el Shell de SQL en Windows).
 
-Para abrir la documentación y probar la API con Nest/Swagger:
+**Desde la terminal psql:**
+1. Ingresa a la interfaz de psql:
+   ```bash
+   psql -U postgres
+   ```
+   *(Te pedirá la contraseña de tu usuario postgres)*
+
+2. Crea la base de datos:
+   ```sql
+   CREATE DATABASE crowdfunding_pymes;
+   ```
+
+3. Sal de la terminal:
+   ```sql
+   \q
+   ```
+
+### Paso 4: Configurar Variables de Entorno (`.env`)
+En la raíz del proyecto, debes crear un archivo llamado `.env` (si no existe, renombra o copia el contenido de un archivo `.env.example`).
+
+Agrega las siguientes variables, reemplazando la contraseña de `postgres` si es diferente (en este ejemplo la contraseña es `1234`):
+
+```env
+# Conexión a la base de datos PostgreSQL
+DATABASE_URL="postgresql://postgres:1234@localhost:5432/crowdfunding_pymes"
+
+# Configuración de Autenticación (JWT)
+JWT_SECRET="mi_super_secreto_para_el_entorno_de_desarrollo"
+JWT_EXPIRES_IN="1d"
+
+# Variables de Negocio
+INVESTOR_INITIAL_BALANCE=1000
+```
+
+### Paso 5: Ejecutar Migraciones de Prisma
+Para que la base de datos recién creada adopte la estructura (tablas y columnas) de nuestra aplicación, debes ejecutar las migraciones de Prisma:
+
+```bash
+npx prisma migrate dev --name init
+```
+*Si te pregunta algo, acepta.* Esto creará las tablas necesarias (`User`, `Project`, `Investment`, etc.) en tu base de datos de Postgres.
+
+*(Opcional)* Si quieres ver el cliente gráfico de tu base de datos mediante el navegador, puedes ejecutar:
+```bash
+npx prisma studio
+```
+
+### Paso 6: Iniciar el Servidor de NestJS
+Finalmente, levanta la aplicación en modo desarrollo para que detecte los cambios en tiempo real:
 
 ```bash
 npm run start:dev
 ```
+Si todo está bien configurado, deberías ver en la consola un mensaje indicando que la aplicación ha iniciado exitosamente y está escuchando en el puerto `3000`.
 
-- API: `http://localhost:3000`
-- Swagger: `http://localhost:3000/api/docs`
-- Dashboard del inversionista: `GET /dashboard/investor` con JWT de tipo
-  Bearer.
+---
 
-La colección `postman/Crowdfunding-PYMES.postman_collection.json` ejecuta el
-flujo login → creación/activación del proyecto → depósito → inversión →
-dashboard. Ejecútala en orden después de levantar la aplicación.
+## 📖 Documentación de la API (Swagger)
 
-## Compile and run the project
+La API cuenta con documentación autogenerada con Swagger. Una vez que el servidor esté corriendo, puedes ver y probar los endpoints interactivos desde tu navegador:
 
+- **Ruta de Swagger:** [http://localhost:3000/api](http://localhost:3000/api)
+
+---
+
+## 🧪 Pruebas (Testing)
+
+El proyecto cuenta con un conjunto de pruebas unitarias robusto configurado con Jest.
+
+Para ejecutar las pruebas:
 ```bash
-# development
-npm run start
+# Correr los tests una sola vez
+npm run test
 
-# watch mode
-npm run start:dev
-
-# production mode
-npm run start:prod
+# Correr los tests y mostrar el reporte de cobertura (Coverage)
+npm run test:cov
 ```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
