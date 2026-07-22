@@ -74,7 +74,6 @@ export class ProjectsService {
   async update(id: number, updateProjectDto: UpdateProjectDto, currentUser: any) {
     const project = await this.findOne(id);
 
-    // Verificar propiedad o rol ADMIN
     if (currentUser.role !== Role.ADMIN && project.ownerId !== currentUser.id) {
       throw new ForbiddenException('No tienes permisos para modificar este proyecto.');
     }
@@ -98,7 +97,6 @@ export class ProjectsService {
   async remove(id: number, currentUser: any) {
     const project = await this.findOne(id);
 
-    // Verificar propiedad o rol ADMIN
     if (currentUser.role !== Role.ADMIN && project.ownerId !== currentUser.id) {
       throw new ForbiddenException('No tienes permisos para eliminar este proyecto.');
     }
@@ -108,11 +106,9 @@ export class ProjectsService {
     });
   }
 
-  // --- Máquina de Estados ---
   async transitionStatus(id: number, newStatus: Status, currentUser: any) {
     const project = await this.findOne(id);
 
-    // Verificar propiedad o rol ADMIN
     if (currentUser.role !== Role.ADMIN && project.ownerId !== currentUser.id) {
       throw new ForbiddenException('No tienes permisos para cambiar el estado de este proyecto.');
     }
@@ -145,8 +141,7 @@ export class ProjectsService {
     return allowed.includes(target);
   }
 
-  // --- Tarea Cron (Cierre Automático de Proyectos Expirados) ---
-  @Cron('*/10 * * * * *') // Se ejecuta cada 10 segundos en desarrollo
+  @Cron('*/10 * * * * *')
   async handleExpiredProjects() {
     this.logger.debug('Ejecutando Cron Job: Verificación de proyectos ACTIVE expirados...');
     const now = new Date();

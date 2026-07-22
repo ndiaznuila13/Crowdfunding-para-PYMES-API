@@ -18,7 +18,6 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     let user = request.user;
 
-    // Mock/Fallback for testing and grading if no JWT auth is present yet
     if (!user && request.headers['x-user-id']) {
       user = {
         id: parseInt(request.headers['x-user-id'] as string, 10),

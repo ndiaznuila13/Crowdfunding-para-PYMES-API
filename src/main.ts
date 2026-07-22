@@ -8,19 +8,16 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 1. Validaciones globales con class-validator
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Elimina campos no definidos en el DTO
-      forbidNonWhitelisted: true, // Lanza error si envían campos extra
-      transform: true, // Transforma los payloads a las clases DTO
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
-  // 2. Filtro global de excepciones HTTP
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // 3. Configuración de Swagger/OpenAPI
   const config = new DocumentBuilder()
     .setTitle('Crowdfunding PYMES API')
     .setDescription(
@@ -59,7 +56,6 @@ async function bootstrap() {
     customSiteTitle: 'Crowdfunding PYMES | API Docs',
   });
 
-  // 4. Habilitar CORS si habrá un frontend separado
   app.enableCors();
 
   await app.listen(3000);

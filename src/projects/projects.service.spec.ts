@@ -40,7 +40,7 @@ describe('ProjectsService', () => {
         title: 'Nuevo Proyecto',
         description: 'Descripcion del proyecto nuevo',
         fundingGoal: 1000,
-        deadline: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // mañana
+        deadline: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
         returnRate: 10,
       };
 
@@ -69,7 +69,7 @@ describe('ProjectsService', () => {
         title: 'Proyecto Pasado',
         description: 'Descripcion del proyecto nuevo',
         fundingGoal: 1000,
-        deadline: new Date(Date.now() - 1000 * 60).toISOString(), // hace 1 minuto
+        deadline: new Date(Date.now() - 1000 * 60).toISOString(),
         returnRate: 10,
       };
 
@@ -112,9 +112,8 @@ describe('ProjectsService', () => {
     });
 
     it('debe lanzar BadRequestException si la transicion no es valida según la maquina de estados', async () => {
-      prismaMock.project.findUnique.mockResolvedValue(mockProject); // status: DRAFT
+      prismaMock.project.findUnique.mockResolvedValue(mockProject);
 
-      // Transicion no permitida: DRAFT -> COMPLETED
       await expect(
         service.transitionStatus(1, Status.COMPLETED, mockUser),
       ).rejects.toThrow(BadRequestException);

@@ -13,7 +13,6 @@ async function main() {
   const demoPassword = 'Password123';
   const passwordHash = await bcrypt.hash(demoPassword, 10);
 
-  // Crear usuario con rol PYME
   const pymeUser = await prisma.user.upsert({
     where: { email: 'pyme@example.com' },
     update: { password: passwordHash, role: Role.PYME },
@@ -28,7 +27,6 @@ async function main() {
     `Usuario PYME registrado: ${pymeUser.email} (ID: ${pymeUser.id})`,
   );
 
-  // Crear otro usuario con rol PYME (para pruebas de propiedad)
   const pymeUser2 = await prisma.user.upsert({
     where: { email: 'pyme2@example.com' },
     update: { password: passwordHash, role: Role.PYME },
@@ -43,7 +41,6 @@ async function main() {
     `Segundo Usuario PYME registrado: ${pymeUser2.email} (ID: ${pymeUser2.id})`,
   );
 
-  // Crear usuario con rol INVESTOR
   const investorUser = await prisma.user.upsert({
     where: { email: 'investor@example.com' },
     update: { password: passwordHash, role: Role.INVESTOR },
@@ -58,7 +55,6 @@ async function main() {
     `Usuario INVESTOR registrado: ${investorUser.email} (ID: ${investorUser.id})`,
   );
 
-  // Crear usuario con rol ADMIN
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
     update: { password: passwordHash, role: Role.ADMIN },

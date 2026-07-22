@@ -101,10 +101,6 @@ export class DashboardService {
     };
   }
 
-  /**
-   * XIRR aproximada: busca la tasa anual que hace cero el valor presente neto
-   * de los desembolsos y retornos proyectados de las inversiones vigentes.
-   */
   private calculateEstimatedIrr(cashFlows: CashFlow[]): number | null {
     if (
       cashFlows.length < 2 ||
