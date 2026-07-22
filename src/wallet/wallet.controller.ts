@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { WalletService } from './wallet.service';
 import { DepositDto } from './dto/deposit.dto';
@@ -18,6 +23,21 @@ export class WalletController {
   @Post('deposit')
   @Roles(Role.INVESTOR)
   @ApiOperation({ summary: 'Depositar fondos (solo INVESTOR)' })
+  @ApiResponse({
+    status: 201,
+    description: 'Depósito aplicado correctamente.',
+    schema: {
+      example: {
+        message: 'Depósito exitoso',
+        id: 3,
+        email: 'investor@example.com',
+        balance: 1500,
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Monto inválido.' })
+  @ApiResponse({ status: 401, description: 'JWT ausente o inválido.' })
+  @ApiResponse({ status: 403, description: 'Se requiere rol INVESTOR.' })
   deposit(
     @CurrentUser() user: { id: number; role: Role },
     @Body() dto: DepositDto,
@@ -27,6 +47,18 @@ export class WalletController {
 
   @Get('balance')
   @ApiOperation({ summary: 'Consultar balance del usuario autenticado' })
+  @ApiResponse({
+    status: 200,
+    description: 'Balance actual del usuario.',
+    schema: {
+      example: {
+        id: 3,
+        email: 'investor@example.com',
+        balance: 1000,
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'JWT ausente o inválido.' })
   balance(@CurrentUser() user: { id: number }) {
     return this.walletService.getBalance(user.id);
   }

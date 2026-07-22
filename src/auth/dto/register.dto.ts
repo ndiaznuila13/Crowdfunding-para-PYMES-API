@@ -7,7 +7,7 @@ export class RegisterDto {
   @IsEmail({}, { message: 'Email inválido' })
   email: string;
 
-  @ApiProperty({ example: 'Password123' })
+  @ApiProperty({ example: 'Password123', minLength: 6, format: 'password' })
   @IsString()
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   password: string;

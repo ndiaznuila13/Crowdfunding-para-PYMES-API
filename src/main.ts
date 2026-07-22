@@ -23,16 +23,45 @@ async function bootstrap() {
   // 3. Configuración de Swagger/OpenAPI
   const config = new DocumentBuilder()
     .setTitle('Crowdfunding PYMES API')
-    .setDescription('API para plataforma fintech de inversiones')
+    .setDescription(
+      [
+        'API para una plataforma fintech de crowdfunding para PYMES.',
+        '',
+        '**Autenticación:** inicia sesión en `POST /auth/login`, copia el `access_token` y úsalo en el botón **Authorize** como Bearer token.',
+        '',
+        '**Usuarios demo:** `investor@example.com`, `pyme@example.com`, `pyme2@example.com` y `admin@example.com`. Contraseña: `Password123`.',
+        '',
+        'Los endpoints protegidos indican el rol requerido. Actualmente, las operaciones de proyectos usan los encabezados `x-user-id` y `x-user-role` mostrados en cada endpoint; wallet, inversiones, finanzas y dashboard usan JWT.',
+      ].join('\n'),
+    )
     .setVersion('1.0')
-    .addBearerAuth() // Prepara Swagger para los JWT
+    .addServer('http://localhost:3000', 'Ambiente local')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description:
+          'Introduce únicamente el token JWT obtenido en /auth/login',
+      },
+      'bearer',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      filter: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'method',
+    },
+    customSiteTitle: 'Crowdfunding PYMES | API Docs',
+  });
 
   // 4. Habilitar CORS si habrá un frontend separado
   app.enableCors();
 
   await app.listen(3000);
 }
-bootstrap();
+void bootstrap();
