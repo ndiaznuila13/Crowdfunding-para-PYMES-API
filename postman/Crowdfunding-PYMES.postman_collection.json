@@ -6,18 +6,55 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000" },
-    { "key": "password", "value": "Password123", "type": "secret" },
-    { "key": "investorEmail", "value": "investor@example.com" },
-    { "key": "pymeEmail", "value": "pyme@example.com" },
-    { "key": "investorToken", "value": "" },
-    { "key": "pymeToken", "value": "" },
-    { "key": "investorId", "value": "" },
-    { "key": "pymeId", "value": "" },
-    { "key": "projectId", "value": "" },
-    { "key": "futureDeadline", "value": "" },
-    { "key": "adminEmail", "value": "admin@example.com" },
-    { "key": "adminToken", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "password",
+      "value": "Password123",
+      "type": "secret"
+    },
+    {
+      "key": "investorEmail",
+      "value": "investor@example.com"
+    },
+    {
+      "key": "pymeEmail",
+      "value": "pyme@example.com"
+    },
+    {
+      "key": "investorToken",
+      "value": ""
+    },
+    {
+      "key": "pymeToken",
+      "value": ""
+    },
+    {
+      "key": "investorId",
+      "value": ""
+    },
+    {
+      "key": "pymeId",
+      "value": ""
+    },
+    {
+      "key": "projectId",
+      "value": ""
+    },
+    {
+      "key": "futureDeadline",
+      "value": ""
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@example.com"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    }
   ],
   "item": [
     {
@@ -50,7 +87,12 @@
           "name": "Login PYME",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{pymeEmail}}\",\n  \"password\": \"{{password}}\"\n}"
@@ -75,7 +117,12 @@
           "name": "Login INVESTOR",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{investorEmail}}\",\n  \"password\": \"{{password}}\"\n}"
@@ -129,9 +176,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "{{pymeId}}" },
-              { "key": "x-user-role", "value": "PYME" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{pymeId}}"
+              },
+              {
+                "key": "x-user-role",
+                "value": "PYME"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -145,11 +201,23 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-user-id", "value": "{{pymeId}}" },
-              { "key": "x-user-role", "value": "PYME" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-user-id",
+                "value": "{{pymeId}}"
+              },
+              {
+                "key": "x-user-role",
+                "value": "PYME"
+              }
             ],
-            "body": { "mode": "raw", "raw": "{\n  \"status\": \"ACTIVE\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
             "url": "{{baseUrl}}/projects/{{projectId}}/status"
           },
           "event": [
@@ -188,7 +256,11 @@
       "auth": {
         "type": "bearer",
         "bearer": [
-          { "key": "token", "value": "{{investorToken}}", "type": "string" }
+          {
+            "key": "token",
+            "value": "{{investorToken}}",
+            "type": "string"
+          }
         ]
       },
       "item": [
@@ -196,8 +268,16 @@
           "name": "Depositar fondos",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"amount\": 1000\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000\n}"
+            },
             "url": "{{baseUrl}}/wallet/deposit"
           },
           "event": [
@@ -215,7 +295,12 @@
           "name": "Invertir en proyecto",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"projectId\": {{projectId}},\n  \"amount\": 500\n}"
@@ -283,7 +368,11 @@
       "auth": {
         "type": "bearer",
         "bearer": [
-          { "key": "token", "value": "{{adminToken}}", "type": "string" }
+          {
+            "key": "token",
+            "value": "{{adminToken}}",
+            "type": "string"
+          }
         ]
       },
       "item": [
@@ -291,7 +380,12 @@
           "name": "Login ADMIN",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{password}}\"\n}"
@@ -357,7 +451,9 @@
           "request": {
             "method": "GET",
             "header": [],
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "url": "{{baseUrl}}/dashboard/investor"
           },
           "event": [
