@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestEx
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { FinanceService } from '../finance/finance.service';
 import { Status, Role } from '@prisma/client';
 import { Cron } from '@nestjs/schedule';
 
@@ -9,7 +10,10 @@ import { Cron } from '@nestjs/schedule';
 export class ProjectsService {
   private readonly logger = new Logger(ProjectsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly financeService: FinanceService,
+  ) {}
 
   async create(createProjectDto: CreateProjectDto, ownerId: number) {
     const deadlineDate = new Date(createProjectDto.deadline);
@@ -174,6 +178,13 @@ export class ProjectsService {
       this.logger.log(
         `Proyecto ID ${project.id} ("${project.title}") expiró. Fondeo actual: ${project.currentFunding}/${project.fundingGoal}. Estado cambiado de ACTIVE a ${targetStatus}.`
       );
+
+      if (!reachedGoal) {
+        await this.financeService.refundInvestors(project.id);
+        this.logger.log(
+          `Proyecto ID ${project.id}: reembolso ejecutado para todos los inversores.`
+        );
+      }
     }
   }
 }

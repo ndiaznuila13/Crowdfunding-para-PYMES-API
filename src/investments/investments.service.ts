@@ -34,6 +34,9 @@ export class InvestmentsService {
       );
     }
 
+    const newFunding = project.currentFunding + amount;
+    const goalReached = newFunding >= project.fundingGoal;
+
     const [investment] = await this.prisma.$transaction([
       this.prisma.investment.create({
         data: { amount, userId, projectId },
@@ -44,7 +47,10 @@ export class InvestmentsService {
       }),
       this.prisma.project.update({
         where: { id: projectId },
-        data: { currentFunding: { increment: amount } },
+        data: {
+          currentFunding: { increment: amount },
+          ...(goalReached ? { status: Status.FUNDED } : {}),
+        },
       }),
     ]);
 
