@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProjectsService } from './projects.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { FinanceService } from '../finance/finance.service';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { Status, Role } from '@prisma/client';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
@@ -18,6 +19,10 @@ describe('ProjectsService', () => {
         {
           provide: PrismaService,
           useValue: prismaMock,
+        },
+        {
+          provide: FinanceService,
+          useValue: mockDeep<FinanceService>(),
         },
       ],
     }).compile();
@@ -113,6 +118,66 @@ describe('ProjectsService', () => {
       await expect(
         service.transitionStatus(1, Status.COMPLETED, mockUser),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return all projects', async () => {
+      const mockProjects = [{ id: 1, title: 'Project 1' }];
+      prismaMock.project.findMany.mockResolvedValue(mockProjects as any);
+      const result = await service.findAll();
+      expect(result).toEqual(mockProjects);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should throw NotFoundException if project not found', async () => {
+      prismaMock.project.findUnique.mockResolvedValue(null);
+      await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should return project if found', async () => {
+      const mockProject = { id: 1, title: 'Project 1' };
+      prismaMock.project.findUnique.mockResolvedValue(mockProject as any);
+      const result = await service.findOne(1);
+      expect(result).toEqual(mockProject);
+    });
+  });
+
+  describe('update', () => {
+    it('should update project if valid permissions', async () => {
+      const mockProject = { id: 1, ownerId: 1, title: 'P1' };
+      prismaMock.project.findUnique.mockResolvedValue(mockProject as any);
+      prismaMock.project.update.mockResolvedValue({ ...mockProject, title: 'P2' } as any);
+
+      const result = await service.update(1, { title: 'P2' }, { id: 1, role: Role.PYME });
+      expect(result.title).toEqual('P2');
+    });
+
+    it('should throw ForbiddenException if user not owner and not admin', async () => {
+      const mockProject = { id: 1, ownerId: 1, title: 'P1' };
+      prismaMock.project.findUnique.mockResolvedValue(mockProject as any);
+      await expect(service.update(1, { title: 'P2' }, { id: 2, role: Role.PYME })).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove project if owner', async () => {
+      const mockProject = { id: 1, ownerId: 1, title: 'P1' };
+      prismaMock.project.findUnique.mockResolvedValue(mockProject as any);
+      prismaMock.project.delete.mockResolvedValue(mockProject as any);
+
+      const result = await service.remove(1, { id: 1, role: Role.PYME });
+      expect(prismaMock.project.delete).toHaveBeenCalled();
+      expect(result).toEqual(mockProject);
+    });
+  });
+
+  describe('handleExpiredProjects', () => {
+    it('should do nothing if no expired projects', async () => {
+      prismaMock.project.findMany.mockResolvedValue([]);
+      await service.handleExpiredProjects();
+      expect(prismaMock.project.update).not.toHaveBeenCalled();
     });
   });
 });

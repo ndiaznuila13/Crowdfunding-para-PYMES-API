@@ -34,6 +34,13 @@ export class InvestmentsService {
       );
     }
 
+    const remainingFunding = project.fundingGoal - project.currentFunding;
+    if (amount > remainingFunding) {
+      throw new BadRequestException(
+        `El monto excede la meta de fondeo restante (${remainingFunding})`,
+      );
+    }
+
     const newFunding = project.currentFunding + amount;
     const goalReached = newFunding >= project.fundingGoal;
 
